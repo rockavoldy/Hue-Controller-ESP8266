@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <div class="container mx-auto flex justify-center flex-wrap">
-      <div class="w-full text-center mt-20">
+    <div class="container mx-auto flex  flex-wrap h-screen">
+      <div class="w-full h-20 text-center mt-4 lg:mt-20">
         <div v-if="connected">
           <h1 class="text-lg">Connected</h1>
           <div class="rounded bg-gray-400 px-1 py-1 inline-block">
@@ -41,8 +41,12 @@
         </div>
         <br />
       </div>
-      <div class="w-full flex justify-center align-middle">
-        <ColorPicker :disabled="!connected" :change="updateColor" />
+      <div class="w-full flex justify-center">
+        <ColorPicker
+          class="w-10/12 sm:w-10/12 lg:w-6/12 xl:w-4/12"
+          :disabled="!connected"
+          :change="updateColor"
+        />
       </div>
     </div>
   </div>

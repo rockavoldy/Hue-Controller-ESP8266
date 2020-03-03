@@ -1,46 +1,47 @@
 <template>
-  <div class="relative">
-    <transition name="pop">
-      <div class="w-100 border border-gray-400 rounded bg-white z-10">
-        <div
-          class="h-40 flex justify-center items-center text-white rounded-t"
-          v-bind:style="{ background: color }"
-        >
-          <div class="text-center">
-            <span class="text-white text-lg">{{ colorString }}</span>
-          </div>
-        </div>
-        <div class="px-3 py-2 rounded-b">
-          <div class="w-100 h-5 rounded mb-1" v-bind:style="gradH">
-            <input
-              :disabled="disabled"
-              type="range"
-              min="0"
-              max="360"
-              v-model="h"
-            />
-          </div>
-          <div class="w-100 h-5 rounded mb-1" v-bind:style="gradS">
-            <input
-              :disabled="disabled"
-              type="range"
-              min="0"
-              max="100"
-              v-model="s"
-            />
-          </div>
-          <div class="w-100 h-5 rounded mb-1" v-bind:style="gradL">
-            <input
-              :disabled="disabled"
-              type="range"
-              min="0"
-              max="100"
-              v-model="l"
-            />
-          </div>
+  <div>
+    <div class="w-100 border border-gray-400 rounded bg-white z-10">
+      <div
+        class="h-64 flex justify-center items-center text-white rounded-t"
+        v-bind:style="{ background: color }"
+      >
+        <div class="text-center">
+          <span class="text-white text-lg">{{ colorString }}</span>
         </div>
       </div>
-    </transition>
+      <div class="px-3 py-2 rounded-b">
+        <div class="w-100 h-8 rounded mb-1" v-bind:style="gradH">
+          <input
+            :disabled="disabled"
+            class="w-full py-2"
+            type="range"
+            min="0"
+            max="360"
+            v-model="h"
+          />
+        </div>
+        <div class="w-100 h-8 rounded mb-1" v-bind:style="gradS">
+          <input
+            :disabled="disabled"
+            class="w-full py-2"
+            type="range"
+            min="0"
+            max="100"
+            v-model="s"
+          />
+        </div>
+        <div class="w-100 h-8 rounded mb-1" v-bind:style="gradL">
+          <input
+            :disabled="disabled"
+            class="w-full py-2"
+            type="range"
+            min="0"
+            max="100"
+            v-model="l"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
