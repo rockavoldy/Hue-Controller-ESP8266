@@ -54,11 +54,9 @@
 
 <script>
 import ColorPicker from "./components/ColorPicker";
-// import { Chrome } from "vue-color";
 export default {
   name: "App",
   components: {
-    // Chrome,
     ColorPicker
   },
   data() {
