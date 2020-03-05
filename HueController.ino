@@ -27,8 +27,18 @@ WebSocketsServer webSocket = WebSocketsServer(PORT);
 
 CRGB leds[NUM_LEDS];
 
-void setColor(uint8_t h, uint8_t s, uint8_t v) {
-  FastLED.showColor(CHSV(h, s, v));
+void setColor(uint8_t style, uint8_t h, uint8_t s, uint8_t v) {
+  switch (style) {
+    case 1: // static
+      FastLED.showColor(CHSV(h, s, v));
+      break;
+    case 2: // running
+      for (int i = 0; i < NUM_LEDS; i++) {
+        leds[i] = CHSV(h, s, v);
+        FastLED.show();
+        delay(10);
+      }
+  }
 }
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
@@ -46,10 +56,11 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
         case WStype_TEXT:
             DynamicJsonDocument doc(2048);
             deserializeJson(doc, payload);
+            uint8_t style = doc["style"];
             uint8_t h = doc["h"];
             uint8_t s = doc["s"];
             uint8_t v = doc["v"]; 
-            setColor(h, s, v);
+            setColor(style, h, s, v);
             break;
     }
 }
