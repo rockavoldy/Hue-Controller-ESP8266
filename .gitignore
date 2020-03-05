@@ -1,3 +1,6 @@
 .DS_Store
+.pio
 node_modules
 /dist
+libs
+.vscode
