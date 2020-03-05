@@ -30,11 +30,3 @@ Terdapat beberapa konstanta yang harus dirubah dulu sebelum di flash ke board, d
 
 Setelah konfigurasi diatas disesuaikan dengan board, selanjutnya flash script dan lihat Serial Monitor untuk melihat IP dari board.
 Jika board membuat Access Point, maka IP default boardnya akan menjadi `192.168.4.1`. Jika board terhubung dengan jaringan WiFi yang sudah ada, maka cek IP di Serial Monitor atau dengan LAN Scanner.
-
-### Roadmap
-
-- [x] Controlled using websocket client
-- [ ] Add some style for color changing
-- [ ] Add some mode
-- [ ] Make settings persistent (board IP, memorize mode, style, color)
-- [ ] Make native desktop and mobile app controller
