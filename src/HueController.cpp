@@ -2,7 +2,8 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
-#include <WebSocketsServer.h>
+// #include <WebSocketsServer.h>
+#include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <ArduinoOTA.h>
 
@@ -18,18 +19,26 @@
 // User configurable
 #define PORT 8000 // WebSocketServer port, default 8000
 #ifndef STASSID
-#define STASSID "std.64"    // Router SSID, if you want to connect to your existing network
-#define STAPSK "h3ll0w0r1d" // Router Password, change this too
+#define STASSID "Fuu"           // Router SSID, if you want to connect to your existing network
+#define STAPSK "UL6jucYSz4bdeV" // Router Password, change this too
 #endif
-#define SKIPSTA false          // Change to true if you want to skip connecting to existing router
-#define APSSID "HueController" // SSID of Access Point created by ESP8266, if can't connect to Router SSID
-#define APPSK "helloworld"     // Password of Access Point created by ESP8266
-#define NUM_LEDS 34            // Change to total amount of your leds on this project
-#define DATA_PIN 5             // Change to your NEOPIXEL DATA Pin connected. See FastLED Pinout
+#define SKIPSTA false             // Change to true if you want to skip connecting to existing router
+#define APSSID "HueController"    // SSID of Access Point created by ESP8266, if can't connect to Router SSID
+#define APPSK "helloworld"        // Password of Access Point created by ESP8266
+#define NUM_LEDS 34               // Change to total amount of your leds on this project
+#define DATA_PIN 5                // Change to your NEOPIXEL DATA Pin connected. See FastLED Pinout
+#define MQTT_SERVER "172.20.10.2" // MQTT Server
 
-WebSocketsServer webSocket = WebSocketsServer(PORT);
+// WebSocketsServer webSocket = WebSocketsServer(PORT);
 
+WiFiClient espClient;
+PubSubClient client(espClient);
 CRGB leds[NUM_LEDS];
+
+unsigned long lastMsg = 0;
+#define MSG_BUFFER_SIZE (50)
+char msg[MSG_BUFFER_SIZE];
+int value = 0;
 
 void setColor(uint8_t style, uint8_t h, uint8_t s, uint8_t v)
 {
@@ -48,32 +57,44 @@ void setColor(uint8_t style, uint8_t h, uint8_t s, uint8_t v)
     }
 }
 
-void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
+void callback(char *topic, uint8_t *payload, unsigned int length)
 {
-    switch (type)
+    // Serial.print("Message arrived [");
+    // Serial.print(topic);
+    // Serial.print("] ");
+    // for (int i = 0; i < length; i++) {
+    //     Serial.print((char)payload[i]);
+    // }
+    // Serial.println();
+    DynamicJsonDocument doc(2048);
+    deserializeJson(doc, payload);
+    uint8_t style = doc["style"];
+    uint8_t h = doc["h"];
+    uint8_t s = doc["s"];
+    uint8_t v = doc["v"];
+    setColor(style, h, s, v);
+}
+
+void reconnect()
+{
+    while (!client.connected())
     {
-    case WStype_ERROR:
-        USE_SERIAL.println("Error!");
-        break;
-    case WStype_DISCONNECTED:
-        USE_SERIAL.printf("[%u] Disconnected!\n", num);
-        break;
-    case WStype_CONNECTED:
-    {
-        IPAddress ip = webSocket.remoteIP(num);
-        USE_SERIAL.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
-        webSocket.sendTXT(num, "Connected");
-    }
-    break;
-    case WStype_TEXT:
-        DynamicJsonDocument doc(2048);
-        deserializeJson(doc, payload);
-        uint8_t style = doc["style"];
-        uint8_t h = doc["h"];
-        uint8_t s = doc["s"];
-        uint8_t v = doc["v"];
-        setColor(style, h, s, v);
-        break;
+        Serial.print("Attempting MQTT connection...");
+        String clientId = "HueController-";
+        clientId += String(random(0xffff), HEX);
+        if (client.connect(clientId.c_str()))
+        {
+            Serial.println("connected");
+            //   client.publish("presence", "hello world");
+            client.subscribe("changeColor");
+        }
+        else
+        {
+            Serial.print("failed, rc=");
+            Serial.print(client.state());
+            Serial.println(" try again in 5 seconds");
+            delay(5000);
+        }
     }
 }
 
@@ -166,12 +187,19 @@ void setup()
         }
     });
     ArduinoOTA.begin();
-    webSocket.begin();
-    webSocket.onEvent(webSocketEvent);
+    client.setServer(MQTT_SERVER, 1883);
+    client.setCallback(callback);
+    // webSocket.begin();
+    // webSocket.onEvent(webSocketEvent);
 }
 
 void loop()
 {
+    if (!client.connected())
+    {
+        reconnect();
+    }
+    client.loop();
     ArduinoOTA.handle();
-    webSocket.loop();
+    // webSocket.loop();
 }
